@@ -1,0 +1,40 @@
+# Normalize line endings to LF in the repo regardless of what OS/editor
+# touches these files. Since this runs in WSL but the host is Windows, some
+# editors (VS Code on the Windows side, etc.) may be configured to use CRLF —
+# this keeps the repo itself consistent so `git diff` doesn't get noisy with
+# whitespace-only changes.
+* text=auto eol=lf
+
+# Explicit text types
+*.ts text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.mjs text eol=lf
+*.cjs text eol=lf
+*.json text eol=lf
+*.css text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.sh text eol=lf
+.env.example text eol=lf
+Dockerfile text eol=lf
+
+# Windows-only scripts, if any get added later, should keep CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary files — never touch these, no diffing
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.db binary
+*.sqlite binary
+*.sqlite3 binary
+
+# Don't let GitHub's language stats or diffs get cluttered by generated/lock files
+pnpm-lock.yaml linguist-generated=true

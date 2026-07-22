@@ -1,0 +1,16 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data # SQLite persistence + uploaded images (data/images/)
+      # === USER-CONFIGURED MOUNTS (edit as needed) ===
+      # - /home/yourname/code:/app/host-code:ro
+      # - /home/yourname/projects:/app/host-projects:ro
+    environment:
+      - NODE_ENV=production
+      - ALLOWED_BASE_PATHS=/app/host-code:/app/host-projects:/app/data
+      - DATABASE_DIR=/app/data
+    # Important for file permissions on host git clones:
+    # user: "${UID}:${GID}"

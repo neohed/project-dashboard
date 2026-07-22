@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+@theme {
+  /* Color: cool near-black surface, two status accents (idea=amber, in_progress=teal) */
+  --color-bg: #0b0e14;
+  --color-surface: #131826;
+  --color-surface-hover: #1a2033;
+  --color-border: #232b3d;
+  --color-text: #e7eaf0;
+  --color-text-muted: #8a93a8;
+  --color-accent-idea: #e8a33d;
+  --color-accent-idea-dim: #4a3a22;
+  --color-accent-progress: #3fd6c0;
+  --color-accent-progress-dim: #1f3a37;
+  --color-danger: #e2554d;
+
+  /* Type: monospace for headings/labels (terminal feel), system sans for body copy */
+  --font-display: ui-monospace, "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --radius-card: 0.625rem;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-body);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent-progress);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+}
+
+/* Signature element: a blinking terminal cursor used once, in the header eyebrow */
+@keyframes caret-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.caret {
+  display: inline-block;
+  width: 0.55ch;
+  background: currentColor;
+  margin-left: 0.15em;
+  animation: caret-blink 1.1s step-end infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .caret {
+    animation: none;
+    opacity: 1;
+  }
+}
