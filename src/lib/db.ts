@@ -65,12 +65,26 @@ export interface UpdateProjectInput extends Partial<NewProjectInput> {
   image_path?: string | null;
 }
 
+/**
+ * SQLite's datetime('now') yields UTC as "YYYY-MM-DD HH:MM:SS" with no zone
+ * marker, which `new Date()` would parse as *local* time. Convert to a real
+ * ISO-8601 UTC string so it compares correctly against git's ISO dates.
+ */
+function sqliteUtcToIso(value: string): string {
+  return /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value) ? value.replace(" ", "T") + "Z" : value;
+}
+
+function toProject(row: Project): Project {
+  return { ...row, created_at: sqliteUtcToIso(row.created_at), updated_at: sqliteUtcToIso(row.updated_at) };
+}
+
 export function listProjects(): Project[] {
-  return db.prepare("SELECT * FROM projects ORDER BY updated_at DESC").all() as Project[];
+  return (db.prepare("SELECT * FROM projects ORDER BY updated_at DESC").all() as Project[]).map(toProject);
 }
 
 export function getProject(id: string): Project | undefined {
-  return db.prepare("SELECT * FROM projects WHERE id = ?").get(id) as Project | undefined;
+  const row = db.prepare("SELECT * FROM projects WHERE id = ?").get(id) as Project | undefined;
+  return row && toProject(row);
 }
 
 export function createProject(input: NewProjectInput): Project {

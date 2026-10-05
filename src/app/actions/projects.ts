@@ -9,7 +9,7 @@ import {
   type ProjectStatus,
 } from "@/lib/db";
 import { projectFormSchema } from "@/lib/schema";
-import { saveProjectImage, clearProjectImage, ImageValidationError } from "@/lib/images";
+import { processProjectImage, writeProjectImage, clearProjectImage, ImageValidationError } from "@/lib/images";
 import { getRecentCommits, GitAccessError, isGitRepo } from "@/lib/git";
 import type { ActionResult, CommitsResult } from "@/lib/action-types";
 
@@ -23,11 +23,29 @@ function parseForm(formData: FormData) {
   });
 }
 
+/**
+ * Validates + re-encodes the optional cover image up front, before any DB
+ * write, so a bad image fails the whole action instead of leaving a
+ * half-applied change (e.g. a created project the user then re-submits).
+ */
+async function readImage(formData: FormData): Promise<{ image: Buffer | null } | { error: string }> {
+  const file = formData.get("image");
+  if (!(file instanceof File) || file.size === 0) return { image: null };
+  try {
+    return { image: await processProjectImage(file) };
+  } catch (err) {
+    return { error: err instanceof ImageValidationError ? err.message : "Image upload failed" };
+  }
+}
+
 export async function createProjectAction(formData: FormData): Promise<ActionResult> {
   const parsed = parseForm(formData);
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
   }
+
+  const image = await readImage(formData);
+  if ("error" in image) return { ok: false, error: image.error };
 
   const project = dbCreateProject({
     name: parsed.data.name,
@@ -37,16 +55,8 @@ export async function createProjectAction(formData: FormData): Promise<ActionRes
     local_path: parsed.data.local_path || null,
   });
 
-  const image = formData.get("image");
-  if (image instanceof File && image.size > 0) {
-    try {
-      const imagePath = await saveProjectImage(project.id, image);
-      dbUpdateProject(project.id, { image_path: imagePath });
-    } catch (err) {
-      // Project was created successfully; surface the image problem without rolling back.
-      revalidatePath("/");
-      return { ok: false, error: err instanceof ImageValidationError ? err.message : "Image upload failed" };
-    }
+  if (image.image) {
+    dbUpdateProject(project.id, { image_path: writeProjectImage(project.id, image.image) });
   }
 
   revalidatePath("/");
@@ -62,24 +72,17 @@ export async function updateProjectAction(id: string, formData: FormData): Promi
   const existing = getProject(id);
   if (!existing) return { ok: false, error: "Project not found" };
 
+  const image = await readImage(formData);
+  if ("error" in image) return { ok: false, error: image.error };
+
   dbUpdateProject(id, {
     name: parsed.data.name,
     description: parsed.data.description || null,
     status: parsed.data.status as ProjectStatus,
     repo_url: parsed.data.repo_url || null,
     local_path: parsed.data.local_path || null,
+    ...(image.image && { image_path: writeProjectImage(id, image.image) }),
   });
-
-  const image = formData.get("image");
-  if (image instanceof File && image.size > 0) {
-    try {
-      const imagePath = await saveProjectImage(id, image);
-      dbUpdateProject(id, { image_path: imagePath });
-    } catch (err) {
-      revalidatePath("/");
-      return { ok: false, error: err instanceof ImageValidationError ? err.message : "Image upload failed" };
-    }
-  }
 
   revalidatePath("/");
   return { ok: true };

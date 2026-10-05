@@ -1,0 +1,15 @@
+# Rebuilt inside the image (native modules must match the container's platform)
+node_modules
+.next
+
+# Local data and secrets — data/ is bind-mounted at runtime instead
+data
+.env
+.env*.local
+
+.git
+specs
+*.md
+Dockerfile
+docker-compose.yml
+.dockerignore

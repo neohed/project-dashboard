@@ -300,7 +300,7 @@ export function ProjectDialog({
 
             {confirmingDelete && (
               <div className="rounded-md border border-danger/30 bg-danger/10 p-3 space-y-2">
-                <p className="text-sm text-text">Delete "{project.name}" permanently?</p>
+                <p className="text-sm text-text">Delete &ldquo;{project.name}&rdquo; permanently?</p>
                 <div className="flex gap-2 justify-end">
                   <Button variant="ghost" onClick={() => setConfirmingDelete(false)}>
                     Cancel
