@@ -54,7 +54,7 @@ The detail modal's "Copy `code .` cmd" button is currently hardcoded to `cd "<pa
 `src/mcp/` is a stdio [MCP](https://modelcontextprotocol.io) server that lets Claude read and update the dashboard while you work in any repo. It uses the same SQLite DB as the web app, which doesn't need to be running. Register it once for all your Claude Code sessions:
 
 ```bash
-claude mcp add --scope user project-dashboard -- pnpm --dir /path/to/project-dashboard exec tsx src/mcp/index.ts
+claude mcp add --scope user project-dashboard -- /path/to/project-dashboard/node_modules/.bin/tsx /path/to/project-dashboard/src/mcp/index.ts
 ```
 
 Tools: `list_projects`, `get_project` (includes recent commits), `find_project_by_path` (e.g. "is this repo on my dashboard?"), `create_project`, `update_project`. There is deliberately no delete tool. Then ask things like "add this repo to my project dashboard as in progress" or "what was I working on last week?".

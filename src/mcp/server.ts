@@ -3,14 +3,16 @@
 // web app doesn't need to be running.
 //
 // stdout is the MCP transport — never console.log here; use console.error.
+// Use relative imports, not "@/": tsx reads tsconfig.json (and its path
+// aliases) from the cwd, and Claude launches this from other repos.
 import path from "node:path";
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { createProject, getProject, listProjects, updateProject, type Project } from "@/lib/db";
-import { withActivity } from "@/lib/activity";
-import { getRecentCommits, GitAccessError } from "@/lib/git";
-import { needsActivitySourceWarning, projectFormSchema, type ProjectFormValues } from "@/lib/schema";
+import { createProject, getProject, listProjects, updateProject, type Project } from "../lib/db";
+import { withActivity } from "../lib/activity";
+import { getRecentCommits, GitAccessError } from "../lib/git";
+import { needsActivitySourceWarning, projectFormSchema, type ProjectFormValues } from "../lib/schema";
 
 const server = new McpServer({ name: "project-dashboard", version: "0.1.0" });
 

@@ -27,7 +27,7 @@ Single Next.js 16 app (App Router), no separate backend and no API routes for da
 - `src/app/images/[filename]/route.ts` — serves uploaded images (DB stores `images/{id}.webp`, rendered as `/${image_path}`).
 - `src/components/project-dialog.tsx` — one native `<dialog>` handling create / view / edit / delete.
 - `src/lib/schema.ts` — Zod schema for the project form (also used by the MCP tools).
-- `src/mcp/` — stdio MCP server (`@modelcontextprotocol/sdk`) so Claude can list/find/create/update projects; runs outside Next via `tsx` and shares `src/lib`. `index.ts` must set `DATABASE_DIR` *before* `server.ts` (and so `db.ts`) loads — keep the dynamic import. Never write to stdout there (it's the transport); log with `console.error`. No delete tool, on purpose.
+- `src/mcp/` — stdio MCP server (`@modelcontextprotocol/sdk`) so Claude can list/find/create/update projects; runs outside Next via `tsx` and shares `src/lib`. `index.ts` must set `DATABASE_DIR` *before* `server.ts` (and so `db.ts`) loads — keep the dynamic import. Never write to stdout there (it's the transport); log with `console.error`. Use relative imports there, not `@/` — tsx resolves path aliases from the launching cwd, which is another repo, so `@/` breaks at startup. No delete tool, on purpose.
 
 UI uses Tailwind v4 with theme tokens in `src/app/globals.css` (`@theme`); components in `src/components/ui/` are hand-rolled (no shadcn, no TanStack Query despite the spec). Dark theme only.
 
