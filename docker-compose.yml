@@ -5,12 +5,13 @@ services:
       - "3000:3000"
     volumes:
       - ./data:/app/data # SQLite persistence + uploaded images (data/images/)
-      # === USER-CONFIGURED MOUNTS (edit as needed) ===
-      # - /home/yourname/code:/app/host-code:ro
-      # - /home/yourname/projects:/app/host-projects:ro
+      # Your repos, mounted read-only at the *same* path as on the host, so a
+      # project's local_path works identically here, in `pnpm dev`, and from
+      # the MCP server (which always runs on the host). Set PROJECTS_DIR in .env.
+      - ${PROJECTS_DIR:?set PROJECTS_DIR in .env, e.g. /home/you/workspace}:${PROJECTS_DIR}:ro
     environment:
       - NODE_ENV=production
-      - ALLOWED_BASE_PATHS=/app/host-code:/app/host-projects:/app/data
+      - ALLOWED_BASE_PATHS=${PROJECTS_DIR}
       - DATABASE_DIR=/app/data
     # Important for file permissions on host git clones:
     # user: "${UID}:${GID}"

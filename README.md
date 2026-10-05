@@ -24,17 +24,7 @@ Open http://localhost:3000. The SQLite DB and `data/images/` are created automat
 docker compose up --build
 ```
 
-Docker's main gotcha is host filesystem access for git repos: `local_path` values only resolve inside the container if you bind-mount the real host directories. Edit the `volumes:` and `ALLOWED_BASE_PATHS` env var in `docker-compose.yml`:
-
-```yaml
-volumes:
-  - ./data:/app/data
-  - /home/yourname/code:/app/host-code:ro
-environment:
-  - ALLOWED_BASE_PATHS=/app/host-code:/app/data
-```
-
-Then set each project's `local_path` to the *container* path (e.g. `/app/host-code/my-project`), not the host path.
+Set `PROJECTS_DIR` in `.env` to the directory holding your repos (e.g. `/home/you/workspace`) first — compose refuses to start without it. It's bind-mounted read-only **at the same path** inside the container and allow-listed, so a project's `local_path` is just its real host path, the same value native dev and the MCP server use. Repos outside `PROJECTS_DIR` won't show git activity in Docker.
 
 **Recommended workflow**: use `pnpm dev` natively while actively adding projects (zero permission friction), and Docker for a stable long-running instance.
 

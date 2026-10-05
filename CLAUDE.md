@@ -35,7 +35,7 @@ UI uses Tailwind v4 with theme tokens in `src/app/globals.css` (`@theme`); compo
 
 - Anything using `better-sqlite3`, `sharp`, `child_process` or `fs` must stay on the Node.js runtime (never Edge).
 - `pnpm-workspace.yaml` `allowBuilds` is what lets pnpm build the native modules — the Dockerfile must copy it before `pnpm install`.
-- Docker: project `local_path`s must be *container* paths of bind mounts listed in `ALLOWED_BASE_PATHS`; the Dockerfile sets `safe.directory '*'` so git accepts host-owned repos.
+- Docker: `PROJECTS_DIR` (from `.env`) is bind-mounted read-only at the *same path* in the container and is the only `ALLOWED_BASE_PATHS` entry, so `local_path` is always the real host path — keep it that way, since the MCP server runs on the host and stores host paths. The Dockerfile sets `safe.directory '*'` so git accepts host-owned repos.
 - `data/` (SQLite DB + images) is gitignored and dockerignored — it's personal data.
 - `project_activity` table and its `upsertActivity`/`getActivity` helpers exist but are unused (spec's optional cache).
 - Server Action body limit is raised to 6mb in `next.config.ts` to fit the 5MB image cap.
