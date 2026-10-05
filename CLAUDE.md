@@ -8,6 +8,7 @@ Personal, single-user, local-first dashboard for tracking coding projects (Ideas
 pnpm install
 pnpm dev                # http://localhost:3000 — DB + data/images/ auto-created
 pnpm build
+pnpm mcp                # run the stdio MCP server by hand
 pnpm lint               # ESLint flat config (eslint-config-next)
 npx tsc --noEmit -p .   # typecheck
 docker compose up --build
@@ -25,7 +26,8 @@ Single Next.js 16 app (App Router), no separate backend and no API routes for da
 - `src/lib/images.ts` — `processProjectImage` validates and re-encodes to an 800×400 letterboxed webp **without touching disk**; `writeProjectImage` writes `data/images/{id}.webp`. Actions process the image *before* any DB write so a bad image fails the whole action cleanly — keep that ordering.
 - `src/app/images/[filename]/route.ts` — serves uploaded images (DB stores `images/{id}.webp`, rendered as `/${image_path}`).
 - `src/components/project-dialog.tsx` — one native `<dialog>` handling create / view / edit / delete.
-- `src/lib/schema.ts` — Zod schema for the project form.
+- `src/lib/schema.ts` — Zod schema for the project form (also used by the MCP tools).
+- `src/mcp/` — stdio MCP server (`@modelcontextprotocol/sdk`) so Claude can list/find/create/update projects; runs outside Next via `tsx` and shares `src/lib`. `index.ts` must set `DATABASE_DIR` *before* `server.ts` (and so `db.ts`) loads — keep the dynamic import. Never write to stdout there (it's the transport); log with `console.error`. No delete tool, on purpose.
 
 UI uses Tailwind v4 with theme tokens in `src/app/globals.css` (`@theme`); components in `src/components/ui/` are hand-rolled (no shadcn, no TanStack Query despite the spec). Dark theme only.
 

@@ -49,6 +49,18 @@ Then set each project's `local_path` to the *container* path (e.g. `/app/host-co
 
 The detail modal's "Copy `code .` cmd" button is currently hardcoded to `cd "<path>" && code .` in `src/components/project-dialog.tsx`. If you use a different editor, change that one string (`idea .`, `nvim .`, etc.) — see open question #2 in the spec for making this configurable per-user later.
 
+## Using it from Claude (MCP server)
+
+`src/mcp/` is a stdio [MCP](https://modelcontextprotocol.io) server that lets Claude read and update the dashboard while you work in any repo. It uses the same SQLite DB as the web app, which doesn't need to be running. Register it once for all your Claude Code sessions:
+
+```bash
+claude mcp add --scope user project-dashboard -- pnpm --dir /path/to/project-dashboard exec tsx src/mcp/index.ts
+```
+
+Tools: `list_projects`, `get_project` (includes recent commits), `find_project_by_path` (e.g. "is this repo on my dashboard?"), `create_project`, `update_project`. There is deliberately no delete tool. Then ask things like "add this repo to my project dashboard as in progress" or "what was I working on last week?".
+
+`pnpm mcp` runs the server by hand (it waits for MCP messages on stdin). The DB defaults to this repo's `data/` regardless of the directory Claude launches it from; set `DATABASE_DIR` to override.
+
 ## Project structure
 
 ```
@@ -63,6 +75,9 @@ src/
     project-dialog.tsx      # Combined create / view / edit / delete modal
     project-card.tsx / project-column.tsx
     ui/                     # button, input, textarea, select — hand-rolled, no component lib dep
+  mcp/
+    index.ts     # MCP entry: pins DATABASE_DIR to this repo, then loads server.ts
+    server.ts    # stdio MCP server exposing the project tools to Claude
   lib/
     db.ts        # SQLite schema + typed CRUD
     git.ts       # Allow-listed, execFile-based git log reads
