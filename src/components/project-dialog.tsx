@@ -232,7 +232,7 @@ export function ProjectDialog({
               </div>
             </div>
 
-            {project.description && <p className="text-sm text-text-muted whitespace-pre-wrap">{project.description}</p>}
+            {project.description && <p className="text-base leading-relaxed text-text-muted whitespace-pre-wrap">{project.description}</p>}
 
             <div className="space-y-2.5">
               {project.repo_url && (
@@ -283,7 +283,8 @@ export function ProjectDialog({
                   <p className="text-sm text-text-muted">No commits found.</p>
                 )}
                 {commits && commits.length > 0 && (
-                  <ul className="divide-y divide-border/60">
+                  // Sized to show ~3.5 commits so the cut-off one hints that the list scrolls.
+                  <ul className="max-h-48 overflow-y-auto overscroll-contain pr-2 divide-y divide-border/60">
                     {commits.map((c) => (
                       <li key={c.hash} className="py-2 first:pt-0 last:pb-0">
                         <p className="text-sm text-text">{c.subject}</p>
