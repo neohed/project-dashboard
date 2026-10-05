@@ -49,7 +49,7 @@ export function ProjectCard({
         )}
 
         <div className="flex items-center justify-between gap-2 pt-1">
-          <span className="text-xs text-text-muted font-display truncate">{project.activityLabel}</span>
+          <span className="text-xs text-activity font-display truncate">{project.activityLabel}</span>
           <span className="flex items-center gap-1.5 text-text-muted shrink-0">
             {project.repo_url && <Link size={14} aria-label="Has repo link" />}
             {project.local_path && <FolderGit2 size={14} aria-label="Has local path" />}

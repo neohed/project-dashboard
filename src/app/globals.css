@@ -13,6 +13,7 @@
   --color-accent-progress: #3fd6c0;
   --color-accent-progress-dim: #1f3a37;
   --color-danger: #e2554d;
+  --color-activity: #f57c00; /* last-activity footer on project cards */
 
   /* Type: monospace for headings/labels (terminal feel), system sans for body copy */
   --font-display: ui-monospace, "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
