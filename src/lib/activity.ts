@@ -1,9 +1,12 @@
 import { type Project } from "./db";
 import { getLastCommitTimestamp } from "./git";
 
+export type ActivityLevel = "fresh" | "recent" | "stale";
+
 export interface ProjectWithActivity extends Project {
   activityDate: string; // ISO date used for sorting
   activityLabel: string; // human-readable teaser for the card
+  activityLevel: ActivityLevel; // traffic-light colour for the card footer
   commitSubject: string | null;
 }
 
@@ -35,7 +38,7 @@ export function withActivity(projects: Project[]): ProjectWithActivity[] {
           ? `Updated ${timeAgoShort(activityDate)} (no git data)`
           : `Updated ${timeAgoShort(activityDate)}`;
 
-    return { ...p, activityDate, activityLabel, commitSubject };
+    return { ...p, activityDate, activityLabel, activityLevel: activityLevel(activityDate), commitSubject };
   });
 
   return enriched.sort((a, b) => new Date(b.activityDate).getTime() - new Date(a.activityDate).getTime());
@@ -45,9 +48,20 @@ function truncate(s: string, n: number) {
   return s.length > n ? s.slice(0, n - 1) + "…" : s;
 }
 
+function daysAgo(iso: string): number {
+  return Math.floor(Math.max(0, Date.now() - new Date(iso).getTime()) / 86_400_000);
+}
+
+/** Uses the same whole-day count as the label, so "5d ago" is always fresh and "6d ago" recent. */
+function activityLevel(iso: string): ActivityLevel {
+  const days = daysAgo(iso);
+  if (days <= 5) return "fresh";
+  if (days <= 10) return "recent";
+  return "stale";
+}
+
 function timeAgoShort(iso: string): string {
-  const diffMs = Math.max(0, Date.now() - new Date(iso).getTime());
-  const days = Math.floor(diffMs / 86_400_000);
+  const days = daysAgo(iso);
   if (days === 0) return "today";
   if (days === 1) return "1d ago";
   if (days < 30) return `${days}d ago`;

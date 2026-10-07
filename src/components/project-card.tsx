@@ -2,7 +2,14 @@
 
 import { Link, FolderGit2 } from "lucide-react";
 import { StatusBadge } from "./status-badge";
-import type { ProjectWithActivity } from "@/lib/activity";
+import { cn } from "@/lib/utils";
+import type { ActivityLevel, ProjectWithActivity } from "@/lib/activity";
+
+const activityColor: Record<ActivityLevel, string> = {
+  fresh: "text-activity-fresh",
+  recent: "text-activity-recent",
+  stale: "text-activity-stale",
+};
 
 function initials(name: string) {
   return name
@@ -49,7 +56,9 @@ export function ProjectCard({
         )}
 
         <div className="flex items-center justify-between gap-2 pt-1">
-          <span className="text-xs text-activity font-display truncate">{project.activityLabel}</span>
+          <span className={cn("text-xs font-display truncate", activityColor[project.activityLevel])}>
+            {project.activityLabel}
+          </span>
           <span className="flex items-center gap-1.5 text-text-muted shrink-0">
             {project.repo_url && <Link size={14} aria-label="Has repo link" />}
             {project.local_path && <FolderGit2 size={14} aria-label="Has local path" />}
